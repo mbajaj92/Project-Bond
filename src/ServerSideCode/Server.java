@@ -41,10 +41,14 @@ public class Server {
 					out.flush();
 					break;
 				case SEARCH:
+					/* First check for registrations and then Call Abhidnya's
+					 * Function */
 					System.out.println("Search Request from " + msg.userId);
 					System.out.println("Search for " + msg.tokens);
 					break;
 				case REGISTER_TOKEN:
+					/* Implement a DB, and then create a Probe for the user to
+					 * keep checking for checks */
 					System.out.println("Spy Request from " + msg.userId);
 					System.out.println("Spy Tokens " + msg.tokens);
 					break;
@@ -54,7 +58,6 @@ public class Server {
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
