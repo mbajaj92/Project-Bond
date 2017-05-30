@@ -37,7 +37,7 @@ public class TestServer {
 					System.out.println("SERVER: We have input Stream");
 					Message msg = (Message) in.readObject();
 					System.out.println("SERVER: We have a Message");
-					System.out.println("SERVER: We have recieved the message " + msg.token);
+					System.out.println("SERVER: We have recieved the message " + msg.tokens);
 				} catch (IOException e) {
 					System.out.println("SERVER 1: "+e);
 				} catch (ClassNotFoundException e) {

@@ -25,7 +25,31 @@ public class Server {
 				ObjectInputStream in = new ObjectInputStream(client.getInputStream());
 				Message msg = null;
 				msg = (Message) in.readObject();
-				System.out.println(msg.userId + " " + msg.password);
+
+				switch (msg.msgType) {
+				case LOGIN:
+					/* Actually Authenticate */
+					System.out.println("Log In Request for " + msg.userId + " " + msg.password);
+					msg.tokens = "WELCOME";
+					out.writeObject(msg);
+					out.flush();
+					break;
+				case LOGOFF:
+					System.out.println("Log Off Request for " + msg.userId);
+					msg.tokens = "BYE!!";
+					out.writeObject(msg);
+					out.flush();
+					break;
+				case SEARCH:
+					System.out.println("Search Request from " + msg.userId);
+					System.out.println("Search for " + msg.tokens);
+					break;
+				case REGISTER_TOKEN:
+					System.out.println("Spy Request from " + msg.userId);
+					System.out.println("Spy Tokens " + msg.tokens);
+					break;
+				}
+				client.close();
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
