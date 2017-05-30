@@ -7,11 +7,11 @@ public class Message implements Serializable {
 		LOGIN, REGISTER_TOKEN, SEARCH
 	};
 	
-	public MSG_TYPE type;
+	public MSG_TYPE msgType;
 	private static final long serialVersionUID = 427849097562345L;
-	public String userId, token, links;
+	public String userId, token, links, password;
 
-	Message() {
+	public Message() {
 		userId = null;
 		token = null;
 		links = null;

@@ -10,7 +10,7 @@ public class TestClient {
 		String servername = "172.20.10.3";
 		int port = 2457;
 		Message msg = new Message();
-		msg.type = Message.MSG_TYPE.REGISTER_TOKEN;
+		msg.msgType = Message.MSG_TYPE.REGISTER_TOKEN;
 		msg.token = "Hello World!";
 		Socket test_socket;
 		try {
@@ -23,9 +23,9 @@ public class TestClient {
 			outputStream.writeObject(msg);
 			outputStream.flush();
 			System.out.println("Client: We have written a message");
-			msg = (Message)inputStream.readObject();
+			msg = (Message) inputStream.readObject();
 		} catch (IOException e) {
-			System.out.println("CLIENT 1: "+e);
+			System.out.println("CLIENT 1: " + e);
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
