@@ -57,9 +57,8 @@ public class Utils {
 			e.printStackTrace();
 		}
   }
-    
+
 public static String returnResults(String query) {
-		
 		PythonInterpreter interpreter = new PythonInterpreter();
 		interpreter.execfile("src/PythonCode/Retriever.py");
 		interpreter.set("myquery", query);
@@ -68,6 +67,7 @@ public static String returnResults(String query) {
 		links = links.replaceAll("u'|\'$", "");
 		return links;
 	}
+
 public static ArrayList<String> getStemmed(String token) {
 	PythonInterpreter interpreter = new PythonInterpreter();
 	interpreter.execfile("src/PythonCode/Retriever.py");
