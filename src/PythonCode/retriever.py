@@ -10,8 +10,6 @@ db = client.test
 postings = db.postingsweek3
 metadata = db.metadataweek3
 dictforqueryterms = {}
-
-
 def tokenize(query):
     pattern = re.compile('[^A-Za-z0-9]')
     wordstring = pattern.sub(' ', query)
@@ -50,6 +48,32 @@ def tokenize(query):
                 dictforqueryterms[key] = cnt + 1
             else:
                 dictforqueryterms[key] = 1
+    return listofquerysearch
+
+
+def stem(query):
+    pattern = re.compile('[^A-Za-z0-9]')
+    wordstring = pattern.sub(' ', query)
+    data = wordstring.split()
+    data_iter = iter(data)
+    listofquerysearch = "";
+    for index, d in enumerate(data_iter):
+        current_token = data[index].strip()
+        if len(current_token) >= 2 and current_token.isupper():
+            key = format(stemmer.stem(current_token))  # need to inflate factor for all uppercase
+            listofquerysearch+= str(key) + " ||| "
+        if len(d) >= 2 and index + 1 != len(data):
+            current_token = current_token.lower()
+            key = format(stemmer.stem(current_token))
+            listofquerysearch+= str(key) + " ||| "
+            if (len(data[index + 1].strip()) >= 2):
+                next_token = data[index + 1].strip().lower()
+                key = key + " " + format(stemmer.stem(next_token))
+                listofquerysearch+= str(key) + " ||| "  
+        elif index + 1 == len(data):
+            current_token = data[index].strip().lower()
+            key = format(stemmer.stem(current_token))
+            listofquerysearch+= str(key) + " ||| "
     return listofquerysearch
 
 
