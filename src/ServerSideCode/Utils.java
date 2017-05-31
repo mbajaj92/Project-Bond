@@ -1,5 +1,7 @@
 package ServerSideCode;
 
+import org.python.core.PyObject;
+import org.python.util.PythonInterpreter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -51,5 +53,16 @@ public class Utils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+  }
+    
+public String returnresults(String query) {
+		
+		PythonInterpreter interpreter = new PythonInterpreter();
+		interpreter.execfile("src/PythonCode/retriever.py");
+		interpreter.set("myquery", query);
+		PyObject linkswithseparatorsnotformatted = interpreter.eval("repr(finddocs(myquery))");
+		String links = linkswithseparatorsnotformatted.toString();
+		links = links.replaceAll("u'|\'$", "");
+		return links;
 	}
 }
