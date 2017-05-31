@@ -7,8 +7,8 @@ from nltk.stem.snowball import SnowballStemmer
 stemmer = SnowballStemmer("english")
 client = MongoClient()
 db = client.test
-postings = db.postingsweek3
-metadata = db.metadataweek3
+postings = db.finalPostings
+metadata = db.finalMetaData
 dictforqueryterms = {}
 def tokenize(query):
     pattern = re.compile('[^A-Za-z0-9]')
@@ -132,7 +132,7 @@ def finddocs(query):
     sorted_scoreofdocs = nlargest(10, scoreofdocuments, key=scoreofdocuments.get)
     print sorted_scoreofdocs
     #sorted_scoreofdocs = sorted(scoreofdocuments.items(), key=operator.itemgetter(1), reverse=True)
-    bookkeeping = open("corpus/bookkeeping.json")
+    bookkeeping = open(os.getcwd() + "\\corpus\\book_keeping.json")
     bookkeeping = json.loads(bookkeeping.read())
     index = 0
     returnstring = ""
@@ -143,4 +143,6 @@ def finddocs(query):
             break
     return returnstring
 
-    # finddocs("information retrieval")
+import os
+os.getcwd()
+print finddocs("Jobs")
