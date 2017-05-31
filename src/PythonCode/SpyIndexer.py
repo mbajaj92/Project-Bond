@@ -1,12 +1,14 @@
+import Queue
 import json
-import parser
-from nltk.stem.snowball import SnowballStemmer
-# from pymongo import MongoClient
-import os, re, sys, threading, time, Queue
 import math
-from urlparse import urljoin
+import os
+import re
+import sys
+import threading
+import time
+from pymongo import MongoClient
 
-from pip.commands import search
+from nltk.stem.snowball import SnowballStemmer
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -56,7 +58,6 @@ class myThread(threading.Thread):
             print "I am ", self.threadID, " ADDING DICTION TO queue size ", self.commonQueue.qsize()
             folder += THREADCOUNT
         print "TOTAL FILES INDEXED = " + str(self.totalCount)
-        self.close()
 
     def folderAndFile(self, path, folder, file):
         self.currentFolder = folder
@@ -97,7 +98,7 @@ class myThread(threading.Thread):
         # this is where we store information in our Index
         self.indexed = True
         if self.diction.get(key) is not None:
-            #token already exist
+            #token already exists
             value = self.diction[key]
             if value.get(post) is not None:
                 value[post] += 1
@@ -115,10 +116,6 @@ class myThread(threading.Thread):
         return self.diction
 
     def clear(self):
-        for key in self.diction.keys():
-            value = self.diction[key]
-            value.clear()
-        self.diction.clear()
         self.diction = {}
 
 
@@ -245,7 +242,7 @@ def get_tfidf(freqindoc, termfreq, totalCount, term_noofdocs):
     return weight
 
 
-#client = MongoClient()
+client = MongoClient()
 q = Queue.Queue()
 threadlist = []
 book = open(os.getcwd() + "\\corpus\\book_keeping.json").read()
@@ -266,7 +263,6 @@ postings = db.finalPostings
 metadata = db.finalMetaData
 postings.drop()
 metadata.drop()
-#f = open("tokens_new.txt", "w")
 index = {}
 freq = {}
 '''
@@ -278,7 +274,6 @@ abc : [45,2]
 2 - number of documents that contain this token - docCount
 
 '''
-
 for diction in list(q.queue):
     for token in diction.keys():
         if freq.get(token) is None:
@@ -294,7 +289,6 @@ for diction in list(q.queue):
             cntdocuments += 1
         val = [cnt, cntdocuments]
         freq[token] = val
-
 for diction in list(q.queue):
     for token in diction.keys():
         if index.get(token) is None:
@@ -336,8 +330,3 @@ for key in freq:
 metadata.insert({"totalCount": totalCount})
 
 print "Done"
-'''
-#for key in freq:
-    #print str(key) + " " + str(freq[key])
-print "Index Generated and end at "+str(time.time())
-#docCount = total Documents indexed, do not create posting entry'''
