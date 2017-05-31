@@ -48,6 +48,7 @@ public class Server {
 					 * Function
 					 */
 					SearchRoutine.getRoutine().addSearchRequest(msg.userId, msg.tokens);
+					RegisterRoutine.getRoutine().notifySpies(msg.userId, msg.tokens);
 					System.out.println("Search Request from " + msg.userId);
 					System.out.println("Search for " + msg.tokens);
 					break;
