@@ -29,6 +29,7 @@ public class PushNotification {
 			mutex.notifyAll();
 		}
 
+		System.out.println("Adding Notification Req");
 		if (mPNThread == null || !mPNThread.isAlive()) {
 			mPNThread = new PushNotificationThread();
 			mPNThread.start();
@@ -46,8 +47,10 @@ public class PushNotification {
 					mutex.notifyAll();
 				}
 
-				if (obj != null)
+				if (obj != null) {
+					System.out.println("Notification Sent");
 					Utils.sendMessage(obj);
+				}
 			}
 		}
 	}

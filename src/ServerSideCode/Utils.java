@@ -44,7 +44,7 @@ public class Utils {
 		nullCheck();
 		return onlineUsers.get(id);
 	}
-	
+
 	public static void sendMessage(Message message) {
 		try {
 			Socket socket = new Socket(Utils.getIPForUser(message.userId), Utils.CLIENT_PORT_NUMBER);
@@ -56,24 +56,24 @@ public class Utils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-  }
-    
-public static String returnResults(String query) {
-		
+	}
+
+	public static String returnResults(String query) {
 		PythonInterpreter interpreter = new PythonInterpreter();
-		interpreter.execfile("src/PythonCode/Retriever.py");
+		interpreter.execfile("src/PythonCode/retriever.py");
 		interpreter.set("myquery", query);
 		PyObject linkswithseparatorsnotformatted = interpreter.eval("repr(finddocs(myquery))");
 		String links = linkswithseparatorsnotformatted.toString();
 		links = links.replaceAll("u'|\'$", "");
 		return links;
 	}
-public static ArrayList<String> getStemmed(String token) {
-	PythonInterpreter interpreter = new PythonInterpreter();
-	interpreter.execfile("src/PythonCode/Retriever.py");
-	interpreter.set("mytoken", token);
-	PyObject stemmednotformatted = interpreter.eval("repr(stem(myquery))");
-	String reply = stemmednotformatted.toString();
-	return (ArrayList<String>) Arrays.asList(reply.split(" ||| "));
-}
+
+	public static ArrayList<String> getStemmed(String token) {
+		PythonInterpreter interpreter = new PythonInterpreter();
+		interpreter.execfile("src/PythonCode/retriever.py");
+		interpreter.set("mytoken", token);
+		PyObject stemmednotformatted = interpreter.eval("repr(stem(myquery))");
+		String reply = stemmednotformatted.toString();
+		return (ArrayList<String>) Arrays.asList(reply.split(" ||| "));
+	}
 }

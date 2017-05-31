@@ -38,6 +38,7 @@ public class SearchRoutine {
 			mutex.notifyAll();
 		}
 
+		System.out.println("Adding Search Req");
 		if (mSRThread == null || !mSRThread.isAlive()) {
 			mSRThread = new SearchRoutineThread();
 			mSRThread.start();
