@@ -38,6 +38,7 @@ public class SearchRoutine {
 			mutex.notifyAll();
 		}
 
+		System.out.println("Adding Search Req");
 		if (mSRThread == null || !mSRThread.isAlive()) {
 			mSRThread = new SearchRoutineThread();
 			mSRThread.start();
@@ -57,7 +58,8 @@ public class SearchRoutine {
 
 				if(obj != null) {
 					Message msg = new Message();
-					msg.links = "";//Utils.getResults(obj.query);
+					msg.links = Utils.returnresults(obj.text);
+					System.out.println("Search Complete");
 					msg.msgType = Message.MSG_TYPE.SEARCH;
 					msg.userId = obj.userID;
 					PushNotification.getRoutine().sendMessage(msg);

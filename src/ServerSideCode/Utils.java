@@ -54,9 +54,9 @@ public class Utils {
 			e.printStackTrace();
 		}
   }
-    
-public String returnresults(String query) {
-		
+
+	public static String returnresults(String query) {
+
 		PythonInterpreter interpreter = new PythonInterpreter();
 		interpreter.execfile("src/PythonCode/retriever.py");
 		interpreter.set("myquery", query);
