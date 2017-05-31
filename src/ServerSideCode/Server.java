@@ -30,25 +30,33 @@ public class Server {
 				case LOGIN:
 					/* Actually Authenticate */
 					System.out.println("Log In Request for " + msg.userId + " " + msg.password);
+					Utils.logUserIn(msg.userId, client.getInetAddress());
 					msg.tokens = "WELCOME";
 					out.writeObject(msg);
 					out.flush();
 					break;
 				case LOGOFF:
 					System.out.println("Log Off Request for " + msg.userId);
+					Utils.logUserOff(msg.userId);
 					msg.tokens = "BYE!!";
 					out.writeObject(msg);
 					out.flush();
 					break;
 				case SEARCH:
-					/* First check for registrations and then Call Abhidnya's
-					 * Function */
+					/*
+					 * First check for registrations and then Call Abhidnya's
+					 * Function
+					 */
+					SearchRoutine.getRoutine().addSearchRequest(msg.userId, msg.tokens);
 					System.out.println("Search Request from " + msg.userId);
 					System.out.println("Search for " + msg.tokens);
 					break;
 				case REGISTER_TOKEN:
-					/* Implement a DB, and then create a Probe for the user to
-					 * keep checking for checks */
+					/*
+					 * Implement a DB, and then create a Probe for the user to
+					 * keep checking for checks
+					 */
+					RegisterRoutine.getRoutine().register(msg.userId, msg.tokens);
 					System.out.println("Spy Request from " + msg.userId);
 					System.out.println("Spy Tokens " + msg.tokens);
 					break;
