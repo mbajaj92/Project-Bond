@@ -57,7 +57,7 @@ public class SearchRoutine {
 
 				if(obj != null) {
 					Message msg = new Message();
-					msg.links = "";//Utils.getResults(obj.query);
+					msg.links = Utils.returnResults(obj.text);
 					msg.msgType = Message.MSG_TYPE.SEARCH;
 					msg.userId = obj.userID;
 					PushNotification.getRoutine().sendMessage(msg);

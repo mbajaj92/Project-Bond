@@ -1,13 +1,16 @@
 package ServerSideCode;
 
-import org.python.core.PyObject;
-import org.python.util.PythonInterpreter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+
+import org.python.core.PyObject;
+import org.python.util.PythonInterpreter;
 
 import TestCode.Message;
 
@@ -55,14 +58,22 @@ public class Utils {
 		}
   }
     
-public String returnresults(String query) {
+public static String returnResults(String query) {
 		
 		PythonInterpreter interpreter = new PythonInterpreter();
-		interpreter.execfile("src/PythonCode/retriever.py");
+		interpreter.execfile("src/PythonCode/Retriever.py");
 		interpreter.set("myquery", query);
 		PyObject linkswithseparatorsnotformatted = interpreter.eval("repr(finddocs(myquery))");
 		String links = linkswithseparatorsnotformatted.toString();
 		links = links.replaceAll("u'|\'$", "");
 		return links;
 	}
+public static ArrayList<String> getStemmed(String token) {
+	PythonInterpreter interpreter = new PythonInterpreter();
+	interpreter.execfile("src/PythonCode/Retriever.py");
+	interpreter.set("mytoken", token);
+	PyObject stemmednotformatted = interpreter.eval("repr(stem(myquery))");
+	String reply = stemmednotformatted.toString();
+	return (ArrayList<String>) Arrays.asList(reply.split(" ||| "));
+}
 }
