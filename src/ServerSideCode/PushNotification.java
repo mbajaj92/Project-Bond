@@ -43,13 +43,22 @@ public class PushNotification {
 			while (!mQueue.isEmpty()) {
 				Message obj = null;
 				synchronized (mutex) {
-					obj = mQueue.get(0);
+					obj = mQueue.remove(0);
 					mutex.notifyAll();
 				}
 
+				boolean sent = true;
 				if (obj != null) {
 					System.out.println("Notification Sent");
-					Utils.sendMessage(obj);
+					sent = Utils.sendMessage(obj);
+				}
+
+				if (!sent) {
+					System.out.println("Notification Not Sent");
+					synchronized (mutex) {
+						mQueue.add(obj);
+						mutex.notifyAll();
+					}
 				}
 			}
 		}

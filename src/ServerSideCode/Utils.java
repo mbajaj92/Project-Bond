@@ -1,21 +1,20 @@
 package ServerSideCode;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import org.python.core.PyObject;
-import org.python.core.PySystemState;
-import org.python.modules.synchronize;
-import org.python.util.PythonInterpreter;
-
-import ClientSideCode.NotificationManager;
 import TestCode.Message;
 
 public class Utils {
@@ -25,6 +24,11 @@ public class Utils {
 
 	private static HashMap<String, InetAddress> onlineUsers;
 	private static HashMap<String, ArrayList<String>> registration;
+
+	public static class QueueObj {
+		String userID;
+		String text;
+	}
 
 	private static void nullCheck() {
 		if (onlineUsers == null)
@@ -53,8 +57,12 @@ public class Utils {
 		return onlineUsers.get(id);
 	}
 
-	public static void sendMessage(Message message) {
+	public static boolean sendMessage(Message message) {
 		try {
+
+			if (!isUserOnline(message.userId))
+				return false;
+
 			Socket socket = new Socket(Utils.getIPForUser(message.userId), Utils.CLIENT_PORT_NUMBER);
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
@@ -64,30 +72,37 @@ public class Utils {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return true;
 	}
 
 	public static String returnResults(String query) {
-		PythonInterpreter interpreter = new PythonInterpreter(null, new PySystemState());
-		PySystemState sys = interpreter.getSystemState();
-		interpreter.execfile("src/PythonCode/retriever.py");
-		interpreter.set("myquery", query);
-		PyObject linkswithseparatorsnotformatted = interpreter.eval("repr(finddocs(myquery))");
-		String links = linkswithseparatorsnotformatted.toString();
-		links = links.replaceAll("u'|\'$", "");
+		String url = "http://127.0.0.1:5000/getSearchResult?query=" + query;
+		String links = "";
+		try {
+			InputStream is = new URL(url).openStream();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			links = rd.readLine();
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return links;
 	}
 
 	public static List<String> getStemmed(String token) {
-		PythonInterpreter interpreter = new PythonInterpreter(null, new PySystemState());
-		PySystemState sys = interpreter.getSystemState();
-		//sys.path.append(new PyString("C:\\Python27\\Lib\\site-packages;"));
-		interpreter.execfile("src/PythonCode/retriever.py");
-		interpreter.set("mytoken", token);
-		PyObject stemmednotformatted = interpreter.eval("repr(stem(myquery))");
-		String reply = stemmednotformatted.toString();
-		return Arrays.asList(reply.split(" ||| "));
+		String url = "http://127.0.0.1:5000/stemmed?query=" + token;
+		String links = "";
+		try {
+			InputStream is = new URL(url).openStream();
+			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			links = rd.readLine();
+			is.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return Arrays.asList(links.split("$"));
 	}
-	
+
 	public static void notifySpies(String userId, ArrayList<String> tokens) {
 		if (registration == null)
 			return;
@@ -116,7 +131,6 @@ public class Utils {
 		ArrayList<String> registeredTokens = registration.get(userId);
 		if (registeredTokens == null) {
 			registration.put(userId, tokens);
-			registration.notifyAll();
 			return;
 		}
 

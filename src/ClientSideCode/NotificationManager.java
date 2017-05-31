@@ -5,6 +5,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 import ServerSideCode.Utils;
 import TestCode.Message;
@@ -32,7 +33,7 @@ public class NotificationManager extends Thread {
 
 	@Override
 	public void run() {
-		System.out.println("Client Receive is ONLINE WAITING");
+		System.out.println("Notification Manager is Online");
 		try {
 			mNotification = new ServerSocket(Utils.CLIENT_PORT_NUMBER);
 		} catch (IOException e1) {
@@ -51,9 +52,14 @@ public class NotificationManager extends Thread {
 					System.out.println("token - " + fromServer.tokens + " users " + fromServer.users);
 				} else if (fromServer.msgType == Message.MSG_TYPE.SEARCH) {
 					System.out.println("We got a Search Reply!!");
-					System.out.println(fromServer.links.split(" ||| "));
+					String links[] = fromServer.links.split("$");
+					for (int i = 0; i < links.length; i++)
+						System.out.println(links[i]);
+
 				} else
 					System.out.println("Unkonwn Message Received");
+			} catch (SocketException se) {
+				System.out.println("Asked to Kill Notification Manager !");
 			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			} finally {
