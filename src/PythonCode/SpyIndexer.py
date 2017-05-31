@@ -1,12 +1,14 @@
+import Queue
 import json
-import parser
-from nltk.stem.snowball import SnowballStemmer
-# from pymongo import MongoClient
-import os, re, sys, threading, time, Queue
 import math
-from urlparse import urljoin
+import os
+import re
+import sys
+import threading
+import time
+from pymongo import MongoClient
 
-from pip.commands import search
+from nltk.stem.snowball import SnowballStemmer
 
 reload(sys)
 sys.setdefaultencoding('utf8')
@@ -56,7 +58,6 @@ class myThread(threading.Thread):
             print "I am ", self.threadID, " ADDING DICTION TO queue size ", self.commonQueue.qsize()
             folder += THREADCOUNT
         print "TOTAL FILES INDEXED = " + str(self.totalCount)
-        self.close()
 
     def folderAndFile(self, path, folder, file):
         self.currentFolder = folder
@@ -76,9 +77,9 @@ class myThread(threading.Thread):
         data_iter = iter(data)
         for index, d in enumerate(data_iter):
             current_token = data[index].strip()
-            #CAN INSERT CAPITAL INFLATE FREQUENCY LOGIC HERE
+            # CAN INSERT CAPITAL INFLATE FREQUENCY LOGIC HERE
             if len(d) >= 2 and index + 1 != len(data):
-                #The Token is not last in the list
+                # The Token is not last in the list
                 current_token = current_token.lower()
                 key = format(self.stemmer.stem(current_token))
                 self.addToken(key, self.posting)
@@ -87,7 +88,7 @@ class myThread(threading.Thread):
                     ngram = key + " " + format(self.stemmer.stem(next_token))
                     self.addToken(ngram, self.posting)
             elif index + 1 == len(data):
-                #The Token is last in the list
+                # The Token is last in the list
                 current_token = current_token.lower()
                 key = format(self.stemmer.stem(current_token))
                 self.addToken(key, self.posting)
@@ -97,7 +98,7 @@ class myThread(threading.Thread):
         # this is where we store information in our Index
         self.indexed = True
         if self.diction.get(key) is not None:
-            #token already exist
+            # token already exists
             value = self.diction[key]
             if value.get(post) is not None:
                 value[post] += 1
@@ -105,7 +106,7 @@ class myThread(threading.Thread):
                 value[post] = 1
                 # print "Setting Value for ",d," as ",value[post]
         else:
-            #create a record for that token
+            # create a record for that token
             value = {}
             value[post] = 1
             self.diction[key] = value
@@ -115,127 +116,8 @@ class myThread(threading.Thread):
         return self.diction
 
     def clear(self):
-        for key in self.diction.keys():
-            value = self.diction[key]
-            value.clear()
-        self.diction.clear()
         self.diction = {}
 
-
-'''
-class Parser(book):
-    def __init__(self, book):
-        # HTMLParser.__init__(self)
-        Parser.__init__(self);
-        self.diction = {}
-        self.stemmer = SnowballStemmer("english")
-        self.indexed = False
-        self.reverse_book_keeping = self.reverseBook(self.book_keeping)
-
-    def reverseBook(self, book):
-        value = {}
-        for key in book.keys():
-            value[book[key]] = key
-        return value
-
-    def folderAndFile(self, path, folder, file):
-        self.currentFolder = folder
-        self.currentFile = file
-        self.pathtoopen = path + "\\" + str(self.currentFolder) + "\\" + str(self.currentFile)
-        self.posting = str(self.currentFolder) + "/" + str(self.currentFile)
-        self.indexed = False
-        self.anchorPostingStack = []
-
-    def print_diction(self):
-        for k, v in self.diction.iteritems():
-            print k, v
-
-    def handle_data(self, data):
-        if len(data) is 0 or len(self.stackList) == 0:
-            return
-
-        pattern = re.compile('[^A-Za-z0-9]')
-        data = pattern.sub(' ', data).split()
-        self.process_dataimpl(data, self.posting)
-
-        if self.stackList[-1] == "a" and len(self.anchorPostingStack) > 0:
-            parent = self.graphNodeDiction[self.posting]
-            if self.graphNodeDiction.get(self.anchorPostingStack[-1]) is not None:
-                child = self.graphNodeDiction[self.anchorPostingStack[-1]]
-            else:
-                child = GraphNode(self.anchorPostingStack[-1])
-                self.graphNodeDiction[self.anchorPostingStack[-1]] = child
-            self.graphNodeSet.add(self.anchorPostingStack[-1])
-            parent.addChild(child)
-            child.addParent(parent)
-            self.process_dataimpl(data, self.anchorPostingStack[-1], factor * 4)
-            self.anchorPostingStack.pop()
-            index = self.get_Last_Index("a")
-            self.stackList = self.stackList[:index] + self.stackList[index + 1:]
-
-    def addToken(self, key, post, factor):
-
-        # key is your token
-        # this is where we store information in our Index
-        self.indexed = True
-        if self.diction.get(key) is not None:
-            value = self.diction[key]
-            if value.get(post) is not None:
-                value[post] += factor
-            else:
-                value[post] = factor
-                # print "Setting Value for ",d," as ",value[post]
-        else:
-            value = {}
-            value[post] = factor
-            self.diction[key] = value
-            # print "Setting Value for ", d, " as ", value[self.posting]
-
-    def process_dataimpl(self, data, post, factor):
-        data_iter = iter(data)
-        for index, d in enumerate(data_iter):
-            current_token = data[index].strip()
-            if len(current_token) >= 2 and current_token.isupper():
-                key = format(self.stemmer.stem(current_token))
-                self.addToken(key, post, factor * 3)
-            if len(d) >= 2 and index + 1 != len(data):
-                #2 gram
-                current_token = current_token.lower()
-                key = format(self.stemmer.stem(current_token))
-                self.addToken(key, post, factor)
-                if (len(data[index + 1].strip()) >= 2):
-                    next_token = data[index + 1].strip().lower()
-                    ngram = key + " " + format(self.stemmer.stem(next_token))
-                    self.addToken(ngram, post, factor)
-            elif index + 1 == len(data):
-                current_token = data[index].strip().lower()
-                key = format(self.stemmer.stem(current_token))
-                self.addToken(key, post, factor)
-
-    def compute_factor(self):
-        factor = 1.0;
-        for s in self.stackList:
-            if self.inflating_factor.get(s) is not None:
-                factor *= self.inflating_factor.get(s)
-        return factor;
-
-    def get_Last_Index(self, tag):
-        if tag in self.stackList:
-            return len(self.stackList) - 1 - self.stackList[::-1].index(tag);
-        else:
-            return -1
-
-    def getDiction(self):
-        return self.diction
-
-    def clear(self):
-        for key in self.diction.keys():
-            value = self.diction[key]
-            value.clear()
-        self.diction.clear()
-        self.diction = {}
-
-'''
 
 def get_tfidf(freqindoc, termfreq, totalCount, term_noofdocs):
     tf = float(freqindoc) / termfreq
@@ -245,7 +127,7 @@ def get_tfidf(freqindoc, termfreq, totalCount, term_noofdocs):
     return weight
 
 
-#client = MongoClient()
+client = MongoClient()
 q = Queue.Queue()
 threadlist = []
 book = open(os.getcwd() + "\\corpus\\book_keeping.json").read()
@@ -266,7 +148,6 @@ postings = db.finalPostings
 metadata = db.finalMetaData
 postings.drop()
 metadata.drop()
-#f = open("tokens_new.txt", "w")
 index = {}
 freq = {}
 '''
@@ -278,7 +159,6 @@ abc : [45,2]
 2 - number of documents that contain this token - docCount
 
 '''
-
 for diction in list(q.queue):
     for token in diction.keys():
         if freq.get(token) is None:
@@ -294,7 +174,6 @@ for diction in list(q.queue):
             cntdocuments += 1
         val = [cnt, cntdocuments]
         freq[token] = val
-
 for diction in list(q.queue):
     for token in diction.keys():
         if index.get(token) is None:
@@ -336,8 +215,3 @@ for key in freq:
 metadata.insert({"totalCount": totalCount})
 
 print "Done"
-'''
-#for key in freq:
-    #print str(key) + " " + str(freq[key])
-print "Index Generated and end at "+str(time.time())
-#docCount = total Documents indexed, do not create posting entry'''
