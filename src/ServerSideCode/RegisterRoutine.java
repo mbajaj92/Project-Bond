@@ -1,13 +1,16 @@
 package ServerSideCode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class RegisterRoutine {
 
-	private Object mutex;
+	private Object mRRTmutex, mSRTmutex;
 	private static RegisterRoutine mSR = null;
-	private ArrayList<QueueObj> mQueue;
+	private ArrayList<QueueObj> mRRTQueue;
+	private ArrayList<QueueObj> mSRTQueue;
 	private RegisterRoutineThread mRRThread = null;
+	private SpyResponseThread mSRThread = null;
 
 	private class QueueObj {
 		String userID;
@@ -21,8 +24,10 @@ public class RegisterRoutine {
 	}
 
 	private RegisterRoutine() {
-		mQueue = new ArrayList<QueueObj>();
-		mutex = new Object();
+		mRRTQueue = new ArrayList<QueueObj>();
+		mSRTQueue = new ArrayList<QueueObj>();
+		mRRTmutex = new Object();
+		mSRTmutex = new Object();
 		mRRThread = new RegisterRoutineThread();
 		mRRThread.start();
 	}
@@ -31,9 +36,9 @@ public class RegisterRoutine {
 		QueueObj obj = new QueueObj();
 		obj.userID = userId;
 		obj.text = token;
-		synchronized (mutex) {
-			mQueue.add(obj);
-			mutex.notifyAll();
+		synchronized (mRRTmutex) {
+			mRRTQueue.add(obj);
+			mRRTmutex.notifyAll();
 		}
 
 		if (mRRThread == null || !mRRThread.isAlive()) {
@@ -42,19 +47,53 @@ public class RegisterRoutine {
 		}
 	}
 
+	public void notifySpies(String userId, String tokens) {
+		QueueObj obj = new QueueObj();
+		obj.userID = userId;
+		obj.text = tokens;
+		synchronized (mSRTmutex) {
+			mSRTQueue.add(obj);
+			mSRTmutex.notifyAll();
+		}
+
+		if (mSRThread == null || !mSRThread.isAlive()) {
+			mSRThread = new SpyResponseThread();
+			mSRThread.start();
+		}
+	}
+
+	private class SpyResponseThread extends Thread {
+		@Override
+		public void run() {
+			while(!mSRTQueue.isEmpty()) {
+				QueueObj obj = null;
+				synchronized (mSRTmutex) {
+					obj = mSRTQueue.get(0);
+					mSRTmutex.notifyAll();
+				}
+
+				if(obj != null) {
+					ArrayList<String> stemmedTokens = new ArrayList<String>(/*Utils.getStemmed(obj.text)*/Arrays.asList(obj.text.split(",")));
+					Utils.notifySpies(obj.userID,stemmedTokens);
+				}
+			}
+		}
+	}
+	
 	private class RegisterRoutineThread extends Thread {
 
 		@Override
 		public void run() {
-			while(!mQueue.isEmpty()) {
+			while(!mRRTQueue.isEmpty()) {
 				QueueObj obj = null;
-				synchronized (mutex) {
-					obj = mQueue.get(0);
-					mutex.notifyAll();
+				synchronized (mRRTmutex) {
+					obj = mRRTQueue.get(0);
+					mRRTmutex.notifyAll();
 				}
 
 				if(obj != null) {
-
+					ArrayList<String> stemmedTokens = new ArrayList<String>(/*Utils.getStemmed(obj.text)*/Arrays.asList(obj.text.split(",")));
+					Utils.register(obj.userID, stemmedTokens);
 				}
 			}
 		}
