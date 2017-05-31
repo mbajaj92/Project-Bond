@@ -11,7 +11,7 @@ public class TestClient {
 		int port = 2457;
 		Message msg = new Message();
 		msg.msgType = Message.MSG_TYPE.REGISTER_TOKEN;
-		msg.token = "Hello World!";
+		msg.tokens = "Hello World!";
 		Socket test_socket;
 		try {
 			test_socket = new Socket(servername, port);
