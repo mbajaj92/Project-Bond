@@ -57,6 +57,8 @@ public class Client {
 	}
 
 	public void startLoop(String servername, int port) throws IOException, ClassNotFoundException {
+		NotificationManager nManager = new NotificationManager(userId);
+		nManager.start();
 		System.out.println("Enter a choice \n1.Do a Search\n2.Register Keyword For Spying\n3.Log Out");
 		int choice = scanner.nextInt();
 		scanner.nextLine();
@@ -95,6 +97,7 @@ public class Client {
 				out.writeObject(msg);
 				out.flush();
 				msg = (Message) in.readObject();
+				nManager.stopListening();
 				return;
 			}
 			System.out.println("Enter a choice \n1.Do a Search\n2.Register Keyword For Spying\n3.Log Out");

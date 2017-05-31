@@ -3,6 +3,8 @@ package ServerSideCode;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+import ServerSideCode.Utils.QueueObj;
+
 public class RegisterRoutine {
 
 	private Object mRRTmutex, mSRTmutex;
@@ -11,11 +13,6 @@ public class RegisterRoutine {
 	private ArrayList<QueueObj> mSRTQueue;
 	private RegisterRoutineThread mRRThread = null;
 	private SpyResponseThread mSRThread = null;
-
-	private class QueueObj {
-		String userID;
-		String text;
-	}
 
 	public static RegisterRoutine getRoutine() {
 		if (mSR == null)
@@ -65,34 +62,35 @@ public class RegisterRoutine {
 	private class SpyResponseThread extends Thread {
 		@Override
 		public void run() {
-			while(!mSRTQueue.isEmpty()) {
+			while (!mSRTQueue.isEmpty()) {
 				QueueObj obj = null;
 				synchronized (mSRTmutex) {
-					obj = mSRTQueue.get(0);
+					obj = mSRTQueue.remove(0);
 					mSRTmutex.notifyAll();
 				}
 
-				if(obj != null) {
-					ArrayList<String> stemmedTokens = new ArrayList<String>(/*Utils.getStemmed(obj.text)*/Arrays.asList(obj.text.split(",")));
-					Utils.notifySpies(obj.userID,stemmedTokens);
+				if (obj != null) {
+					ArrayList<String> stemmedTokens = new ArrayList<String>(Utils.getStemmed(obj.text));
+					Utils.notifySpies(obj.userID, stemmedTokens);
 				}
 			}
 		}
 	}
-	
+
 	private class RegisterRoutineThread extends Thread {
 
 		@Override
 		public void run() {
-			while(!mRRTQueue.isEmpty()) {
+			while (!mRRTQueue.isEmpty()) {
 				QueueObj obj = null;
 				synchronized (mRRTmutex) {
 					obj = mRRTQueue.get(0);
 					mRRTmutex.notifyAll();
 				}
 
-				if(obj != null) {
-					ArrayList<String> stemmedTokens = new ArrayList<String>(/*Utils.getStemmed(obj.text)*/Arrays.asList(obj.text.split(",")));
+				if (obj != null) {
+					ArrayList<String> stemmedTokens = new ArrayList<String>(
+							/* Utils.getStemmed(obj.text) */Arrays.asList(obj.text.split(",")));
 					Utils.register(obj.userID, stemmedTokens);
 				}
 			}
