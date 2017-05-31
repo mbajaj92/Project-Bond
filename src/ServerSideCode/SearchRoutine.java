@@ -2,6 +2,7 @@ package ServerSideCode;
 
 import java.util.ArrayList;
 
+import ServerSideCode.Utils.QueueObj;
 import TestCode.Message;
 
 public class SearchRoutine {
@@ -10,11 +11,6 @@ public class SearchRoutine {
 	private static SearchRoutine mSR = null;
 	private ArrayList<QueueObj> mQueue;
 	private SearchRoutineThread mSRThread = null;
-
-	private class QueueObj {
-		String userID;
-		String text;
-	}
 
 	public static SearchRoutine getRoutine() {
 		if (mSR == null)
@@ -49,14 +45,14 @@ public class SearchRoutine {
 
 		@Override
 		public void run() {
-			while(!mQueue.isEmpty()) {
+			while (!mQueue.isEmpty()) {
 				QueueObj obj = null;
 				synchronized (mutex) {
-					obj = mQueue.get(0);
+					obj = mQueue.remove(0);
 					mutex.notifyAll();
 				}
 
-				if(obj != null) {
+				if (obj != null) {
 					Message msg = new Message();
 					msg.links = Utils.returnResults(obj.text);
 					msg.msgType = Message.MSG_TYPE.SEARCH;
