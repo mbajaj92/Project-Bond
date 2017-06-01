@@ -76,7 +76,7 @@ public class Utils {
 	}
 
 	public static String returnResults(String query) {
-		String url = "http://127.0.0.1:5000/getSearchResult?query=" + query;
+		String url = "http://127.0.0.1:5000/Project-Bond/scavenge?query=" + query;
 		String links = "";
 		try {
 			InputStream is = new URL(url).openStream();
@@ -90,7 +90,7 @@ public class Utils {
 	}
 
 	public static List<String> getStemmed(String token) {
-		String url = "http://127.0.0.1:5000/stemmed?query=" + token;
+		String url = "http://127.0.0.1:5000/Project-Bond/stemmed?query=" + token;
 		String links = "";
 		try {
 			InputStream is = new URL(url).openStream();
