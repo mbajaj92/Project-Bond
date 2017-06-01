@@ -1,7 +1,7 @@
 package ServerSideCode;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import ServerSideCode.Utils.QueueObj;
 
@@ -70,8 +70,13 @@ public class RegisterRoutine {
 				}
 
 				if (obj != null) {
-					ArrayList<String> stemmedTokens = new ArrayList<String>(Utils.getStemmed(obj.text));
-					Utils.notifySpies(obj.userID, stemmedTokens);
+					ArrayList<String> stemmedTokens = null;
+					try {
+						stemmedTokens = new ArrayList<String>(Utils.getStemmed(obj.text));
+						Utils.notifySpies(obj.userID, stemmedTokens);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -89,8 +94,13 @@ public class RegisterRoutine {
 				}
 
 				if (obj != null) {
-					ArrayList<String> stemmedTokens = new ArrayList<String>(Utils.getStemmed(obj.text));
-					Utils.register(obj.userID, stemmedTokens);
+					ArrayList<String> stemmedTokens = null;
+					try {
+						stemmedTokens = new ArrayList<String>(Utils.getStemmed(obj.text));
+						Utils.register(obj.userID, stemmedTokens);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}

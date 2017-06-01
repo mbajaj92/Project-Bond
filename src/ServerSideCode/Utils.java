@@ -68,37 +68,39 @@ public class Utils {
 			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 			out.writeObject(message);
 			out.flush();
-			out.close();
+			socket.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return true;
 	}
 
-	public static String returnResults(String query) {
+	public static String returnResults(String query) throws IOException {
 		String url = "http://127.0.0.1:5000/Project-Bond/scavenge?query=" + query;
 		String links = "";
+		InputStream is = new URL(url).openStream();
 		try {
-			InputStream is = new URL(url).openStream();
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 			links = rd.readLine();
-			is.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			is.close();
 		}
 		return links;
 	}
 
-	public static List<String> getStemmed(String token) {
+	public static List<String> getStemmed(String token) throws IOException {
 		String url = "http://127.0.0.1:5000/Project-Bond/stemmed?query=" + token;
 		String links = "";
+		InputStream is = new URL(url).openStream();
 		try {
-			InputStream is = new URL(url).openStream();
 			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 			links = rd.readLine();
-			is.close();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			is.close();
 		}
 		return Arrays.asList(links.split("$"));
 	}
