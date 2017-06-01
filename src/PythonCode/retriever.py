@@ -56,7 +56,7 @@ def tokenize(query):
 
 @app.route('/Project-Bond/stemmed',methods=['GET','POST'])
 def stem():
-    query = resquest.args.get('query');
+    query = request.args.get('query');
     pattern = re.compile('[^A-Za-z0-9]')
     wordstring = pattern.sub(' ', query)
     data = wordstring.split()
@@ -148,7 +148,6 @@ def finddocs():
         if (index == 10):
             break
     return returnstring
-
 
 if __name__ == '__main__':
     app.run(debug=True)
