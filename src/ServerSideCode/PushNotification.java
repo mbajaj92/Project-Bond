@@ -54,11 +54,8 @@ public class PushNotification {
 				}
 
 				if (!sent) {
-					System.out.println("Notification Not Sent");
-					synchronized (mutex) {
-						mQueue.add(obj);
-						mutex.notifyAll();
-					}
+					System.out.println("Moving to Undeliverable");
+					Undeliverables.getRoutine().queueMessage(obj);
 				}
 			}
 		}

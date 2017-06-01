@@ -1,5 +1,6 @@
 package ServerSideCode;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import ServerSideCode.Utils.QueueObj;
@@ -54,10 +55,14 @@ public class SearchRoutine {
 
 				if (obj != null) {
 					Message msg = new Message();
-					msg.links = Utils.returnResults(obj.text);
-					msg.msgType = Message.MSG_TYPE.SEARCH;
-					msg.userId = obj.userID;
-					PushNotification.getRoutine().sendMessage(msg);
+					try {
+						msg.links = Utils.returnResults(obj.text);
+						msg.msgType = Message.MSG_TYPE.SEARCH;
+						msg.userId = obj.userID;
+						PushNotification.getRoutine().sendMessage(msg);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
