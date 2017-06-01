@@ -2,14 +2,18 @@ import re
 from pymongo import MongoClient
 import math
 import os, json
+from flask import Flask, request
 from nltk.stem.snowball import SnowballStemmer
 
+app = Flask(__name__)
 stemmer = SnowballStemmer("english")
 client = MongoClient()
 db = client.test
 postings = db.finalPostings
 metadata = db.finalMetaData
 dictforqueryterms = {}
+
+
 def tokenize(query):
     pattern = re.compile('[^A-Za-z0-9]')
     wordstring = pattern.sub(' ', query)
@@ -50,8 +54,9 @@ def tokenize(query):
                 dictforqueryterms[key] = 1
     return listofquerysearch
 
-
-def stem(query):
+@app.route('/Project-Bond/stemmed',methods=['GET','POST'])
+def stem():
+    query = resquest.args.get('query');
     pattern = re.compile('[^A-Za-z0-9]')
     wordstring = pattern.sub(' ', query)
     data = wordstring.split()
@@ -61,19 +66,19 @@ def stem(query):
         current_token = data[index].strip()
         if len(current_token) >= 2 and current_token.isupper():
             key = format(stemmer.stem(current_token))  # need to inflate factor for all uppercase
-            listofquerysearch+= str(key) + " ||| "
+            listofquerysearch+= str(key) + "$"
         if len(d) >= 2 and index + 1 != len(data):
             current_token = current_token.lower()
             key = format(stemmer.stem(current_token))
-            listofquerysearch+= str(key) + " ||| "
+            listofquerysearch+= str(key) + "$"
             if (len(data[index + 1].strip()) >= 2):
                 next_token = data[index + 1].strip().lower()
                 key = key + " " + format(stemmer.stem(next_token))
-                listofquerysearch+= str(key) + " ||| "  
+                listofquerysearch+= str(key) + "$"  
         elif index + 1 == len(data):
             current_token = data[index].strip().lower()
             key = format(stemmer.stem(current_token))
-            listofquerysearch+= str(key) + " ||| "
+            listofquerysearch+= str(key) + "$"
     return listofquerysearch
 
 
@@ -83,8 +88,9 @@ def get_tfidf(freqindoc, termfreq, totalCount, term_noofdocs):
     weight = math.log10(1 + tf) * math.log10(idf)
     return weight
 
-
-def finddocs(query):
+@app.route('/Project-Bond/scavenge',methods=['GET','POST'])
+def finddocs():
+    query = request.args.get('query');
     list = tokenize(query.strip())
     scoreofdocuments = {}
     totalCountofdocs = metadata.find({"totalCount": {'$exists': True}})
@@ -137,12 +143,12 @@ def finddocs(query):
     index = 0
     returnstring = ""
     for entry in sorted_scoreofdocs:
-        returnstring += bookkeeping[entry].strip() + " ||| "
+        returnstring += bookkeeping[entry].strip() + "$"
         index += 1
         if (index == 10):
             break
     return returnstring
 
-import os
-os.getcwd()
-print finddocs("Jobs")
+
+if __name__ == '__main__':
+    app.run(debug=True)
