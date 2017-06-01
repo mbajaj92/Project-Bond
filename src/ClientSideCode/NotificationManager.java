@@ -43,7 +43,6 @@ public class NotificationManager extends Thread {
 		while (isAlive) {
 			try {
 				Socket test_socket = mNotification.accept();
-				System.out.println("Client Receiver got request from Server Yayy ~!!");
 				outStream = new ObjectOutputStream(test_socket.getOutputStream());
 				inStream = new ObjectInputStream(test_socket.getInputStream());
 				Message fromServer = (Message) inStream.readObject();

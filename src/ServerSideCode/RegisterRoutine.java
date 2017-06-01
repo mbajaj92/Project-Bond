@@ -89,8 +89,7 @@ public class RegisterRoutine {
 				}
 
 				if (obj != null) {
-					ArrayList<String> stemmedTokens = new ArrayList<String>(
-							/* Utils.getStemmed(obj.text) */Arrays.asList(obj.text.split(",")));
+					ArrayList<String> stemmedTokens = new ArrayList<String>(Utils.getStemmed(obj.text));
 					Utils.register(obj.userID, stemmedTokens);
 				}
 			}
