@@ -121,6 +121,7 @@ DocProject/Help/*.hhk
 DocProject/Help/*.hhp
 DocProject/Help/Html2
 DocProject/Help/html
+src/PythonCode/corpus/0/*
 
 # Click-Once directory
 publish/

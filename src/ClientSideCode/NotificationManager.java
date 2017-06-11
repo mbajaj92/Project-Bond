@@ -55,7 +55,7 @@ public class NotificationManager extends Thread {
 							+ fromServ.getString(Utils.USERS_LIST));
 				} else if (fromServ.getString(Utils.PACKET_TYPE).equals(Utils.SEARCH)) {
 					System.out.println("We got a Search Reply!!");
-					String links[] = fromServ.getString(Utils.LINKS).split("$");
+					String links[] = fromServ.getString(Utils.LINKS).split("\\$");
 					for (int i = 0; i < links.length; i++)
 						System.out.println(links[i]);
 				} else

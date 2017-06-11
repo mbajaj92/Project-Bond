@@ -27,7 +27,7 @@ public class Client {
 
 	Client() {
 		try {
-			String servername = "localhost";
+			String servername = "172.20.10.3";
 			int port = Utils.SERVER_PORT_NUMBER;
 			System.out.println("Enter the user id");
 			scanner = new Scanner(System.in);
