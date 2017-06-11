@@ -4,8 +4,8 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
@@ -15,12 +15,27 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import TestCode.Message;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Utils {
 
-	public static int SERVER_PORT_NUMBER = 2457;
-	public static int CLIENT_PORT_NUMBER = 5724;
+	public static final String SEARCH_QUERY = "search_query";
+	public static final String WELCOME = "welcome";
+	public static final String AUTHENTICATION = "authentication";
+	public static final String PASSWORD = "password";
+	public static final String USER_ID = "user_id";
+	public static final String USERS_LIST = "users_list";
+	public static final String TOKENS = "tokens";
+	public static final String LOGIN = "login";
+	public static final String REGISTER_TOKEN = "register_token";
+	public static final String SEARCH = "search";
+	public static final String LINKS = "links";
+	public static final String LOGOFF = "log_off";
+	public static final String NOTIFICATION = "notification";
+	public static final String PACKET_TYPE = "Packet_Type";
+	public static final int SERVER_PORT_NUMBER = 2457;
+	public static final int CLIENT_PORT_NUMBER = 5724;
 
 	private static HashMap<String, InetAddress> onlineUsers;
 	private static HashMap<String, ArrayList<String>> registration;
@@ -57,25 +72,27 @@ public class Utils {
 		return onlineUsers.get(id);
 	}
 
-	public static boolean sendMessage(Message message) {
+	public static boolean sendMessage(JSONObject message) {
 		try {
 
-			if (!isUserOnline(message.userId))
+			if (!isUserOnline(message.getString(Utils.USER_ID)))
 				return false;
 
-			Socket socket = new Socket(Utils.getIPForUser(message.userId), Utils.CLIENT_PORT_NUMBER);
-			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
-			out.writeObject(message);
+			Socket socket = new Socket(Utils.getIPForUser(message.getString(Utils.USER_ID)), Utils.CLIENT_PORT_NUMBER);
+			DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+			DataInputStream in = new DataInputStream(socket.getInputStream());
+			out.writeUTF(message.toString());
 			out.flush();
 			socket.close();
 		} catch (IOException e) {
+			e.printStackTrace();
+		} catch (JSONException e) {
 			e.printStackTrace();
 		}
 		return true;
 	}
 
-	public static String returnResults(String query) throws IOException {
+	public static String performSearch(String query) throws IOException {
 		String url = "http://127.0.0.1:5000/Project-Bond/scavenge?query=" + query;
 		String links = "";
 		InputStream is = new URL(url).openStream();
@@ -118,12 +135,16 @@ public class Utils {
 			}
 
 			if (!tokens.isEmpty()) {
-				Message msg = new Message();
-				msg.msgType = Message.MSG_TYPE.NOTIFICATION;
-				msg.userId = userID;
-				msg.users = userId;
-				msg.tokens = tokens.toString();
-				PushNotification.getRoutine().sendMessage(msg);
+				JSONObject reply = new JSONObject();
+				try {
+					reply.put(Utils.PACKET_TYPE, Utils.NOTIFICATION);
+					reply.put(Utils.USER_ID, userID);
+					reply.put(Utils.USERS_LIST, userId);
+					reply.put(Utils.TOKENS, tokens.toString());
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+				PushNotification.getRoutine().sendMessage(reply);
 			}
 		}
 	}

@@ -2,14 +2,14 @@ package ServerSideCode;
 
 import java.util.ArrayList;
 
-import ServerSideCode.Utils.QueueObj;
-import TestCode.Message;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class Undeliverables {
 
 	private Object mUTmutex;
 	private static Undeliverables mUR = null;
-	private ArrayList<Message> mUTQueue;
+	private ArrayList<JSONObject> mUTQueue;
 	private UndeliverablesThread mUThread = null;
 
 	public static Undeliverables getRoutine() {
@@ -19,13 +19,13 @@ public class Undeliverables {
 	}
 
 	private Undeliverables() {
-		mUTQueue = new ArrayList<Message>();
+		mUTQueue = new ArrayList<JSONObject>();
 		mUTmutex = new Object();
 		mUThread = new UndeliverablesThread();
 		mUThread.start();
 	}
 
-	public void queueMessage(Message msg) {
+	public void queueMessage(JSONObject msg) {
 		synchronized (mUTmutex) {
 			mUTQueue.add(msg);
 			mUTmutex.notifyAll();
@@ -45,14 +45,18 @@ public class Undeliverables {
 				boolean flag = false;
 				synchronized (mUTmutex) {
 					for (int i = 0; i < mUTQueue.size();) {
-						Message msg = mUTQueue.get(i);
-						if (Utils.isUserOnline(msg.userId)) {
-							mUTQueue.remove(i);
-							System.out.println("Moving to Push Notification");
-							PushNotification.getRoutine().sendMessage(msg);
-							flag = true;
-						} else
-							i++;
+						JSONObject msg = mUTQueue.get(i);
+						try {
+							if (Utils.isUserOnline(msg.getString(Utils.USER_ID))) {
+								mUTQueue.remove(i);
+								System.out.println("Moving to Push Notification");
+								PushNotification.getRoutine().sendMessage(msg);
+								flag = true;
+							} else
+								i++;
+						} catch (JSONException e) {
+							e.printStackTrace();
+						}
 					}
 					mUTmutex.notifyAll();
 				}
