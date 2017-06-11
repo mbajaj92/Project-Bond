@@ -1,10 +1,13 @@
 package ServerSideCode;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import ServerSideCode.Utils.QueueObj;
-import TestCode.Message;
 
 public class SearchRoutine {
 
@@ -54,13 +57,13 @@ public class SearchRoutine {
 				}
 
 				if (obj != null) {
-					Message msg = new Message();
 					try {
-						msg.links = Utils.returnResults(obj.text);
-						msg.msgType = Message.MSG_TYPE.SEARCH;
-						msg.userId = obj.userID;
-						PushNotification.getRoutine().sendMessage(msg);
-					} catch (IOException e) {
+						JSONObject json = new JSONObject();
+						json.put(Utils.LINKS, Utils.performSearch(obj.text));
+						json.put(Utils.PACKET_TYPE, Utils.SEARCH);
+						json.put(Utils.USER_ID, obj.userID);
+						PushNotification.getRoutine().sendMessage(json);
+					} catch (JSONException | IOException e) {
 						e.printStackTrace();
 					}
 				}

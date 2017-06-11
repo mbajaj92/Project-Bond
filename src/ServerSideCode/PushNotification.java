@@ -2,13 +2,13 @@ package ServerSideCode;
 
 import java.util.ArrayList;
 
-import TestCode.Message;
+import org.json.JSONObject;
 
 public class PushNotification {
 	private Object mutex;
 	private static PushNotification mPN = null;
 	private PushNotificationThread mPNThread = null;
-	private ArrayList<Message> mQueue;
+	private ArrayList<JSONObject> mQueue;
 
 	public static PushNotification getRoutine() {
 		if (mPN == null)
@@ -17,13 +17,13 @@ public class PushNotification {
 	}
 
 	private PushNotification() {
-		mQueue = new ArrayList<Message>();
+		mQueue = new ArrayList<JSONObject>();
 		mutex = new Object();
 		mPNThread = new PushNotificationThread();
 		mPNThread.start();
 	}
 
-	public void sendMessage(Message obj) {
+	public void sendMessage(JSONObject obj) {
 		synchronized (mutex) {
 			mQueue.add(obj);
 			mutex.notifyAll();
@@ -41,7 +41,7 @@ public class PushNotification {
 		@Override
 		public void run() {
 			while (!mQueue.isEmpty()) {
-				Message obj = null;
+				JSONObject obj = null;
 				synchronized (mutex) {
 					obj = mQueue.remove(0);
 					mutex.notifyAll();

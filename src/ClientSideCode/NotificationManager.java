@@ -1,19 +1,21 @@
 package ClientSideCode;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import ServerSideCode.Utils;
-import TestCode.Message;
 
 public class NotificationManager extends Thread {
 	private String userId;
-	private ObjectOutputStream outStream;
-	private ObjectInputStream inStream;
+	private DataOutputStream outStream;
+	private DataInputStream inStream;
 	private boolean isAlive;
 	private ServerSocket mNotification = null;
 
@@ -43,23 +45,26 @@ public class NotificationManager extends Thread {
 		while (isAlive) {
 			try {
 				Socket test_socket = mNotification.accept();
-				outStream = new ObjectOutputStream(test_socket.getOutputStream());
-				inStream = new ObjectInputStream(test_socket.getInputStream());
-				Message fromServer = (Message) inStream.readObject();
-				if (fromServer.msgType == Message.MSG_TYPE.NOTIFICATION) {
+				outStream = new DataOutputStream(test_socket.getOutputStream());
+				inStream = new DataInputStream(test_socket.getInputStream());
+				JSONObject fromServ = new JSONObject(inStream.readUTF());
+
+				if (fromServ.getString(Utils.PACKET_TYPE).equals(Utils.NOTIFICATION)) {
 					System.out.println("We got a Spy Ping !!");
-					System.out.println("token - " + fromServer.tokens + " users " + fromServer.users);
-				} else if (fromServer.msgType == Message.MSG_TYPE.SEARCH) {
+					System.out.println("token - " + fromServ.getString(Utils.TOKENS) + " users "
+							+ fromServ.getString(Utils.USERS_LIST));
+				} else if (fromServ.getString(Utils.PACKET_TYPE).equals(Utils.SEARCH)) {
 					System.out.println("We got a Search Reply!!");
-					String links[] = fromServer.links.split("$");
+					String links[] = fromServ.getString(Utils.LINKS).split("$");
 					for (int i = 0; i < links.length; i++)
 						System.out.println(links[i]);
-
 				} else
 					System.out.println("Unkonwn Message Received");
 			} catch (SocketException se) {
 				System.out.println("Asked to Kill Notification Manager !");
-			} catch (IOException | ClassNotFoundException e) {
+			} catch (IOException e) {
+				e.printStackTrace();
+			} catch (JSONException e) {
 				e.printStackTrace();
 			} finally {
 				outStream = null;
