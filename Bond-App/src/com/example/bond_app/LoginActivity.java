@@ -9,7 +9,6 @@ import java.net.UnknownHostException;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ServerSideCode.Utils;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
@@ -21,17 +20,18 @@ import android.widget.Button;
 import android.widget.EditText;
 
 @SuppressLint("NewApi")
-public class MainActivity extends Activity {
+public class LoginActivity extends Activity {
 	private Socket test_socket;
 	private DataOutputStream out;
 	private DataInputStream in;
 	private EditText userId;
 	private EditText password;
+
 	@SuppressLint("NewApi")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
+		setContentView(R.layout.login_activity);
 		if (android.os.Build.VERSION.SDK_INT > 9) {
 			StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 			StrictMode.setThreadPolicy(policy);
@@ -42,14 +42,14 @@ public class MainActivity extends Activity {
 		b.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				try{
+				try {
 					String servername = ClientUtils.SERVER_NAME;
 					int port = ClientUtils.SERVER_PORT_NUMBER;
 					JSONObject packet = new JSONObject();
-					packet.put(Utils.PACKET_TYPE, Utils.LOGIN);
+					packet.put(ClientUtils.PACKET_TYPE, ClientUtils.LOGIN);
 					String user_ID = userId.getText().toString();
-					packet.put(Utils.USER_ID, user_ID);
-					packet.put(Utils.PASSWORD, password.getText().toString());
+					packet.put(ClientUtils.USER_ID, user_ID);
+					packet.put(ClientUtils.PASSWORD, password.getText().toString());
 
 					test_socket = new Socket(servername, port);
 					out = new DataOutputStream(test_socket.getOutputStream());
@@ -57,9 +57,9 @@ public class MainActivity extends Activity {
 					out.writeUTF(packet.toString());
 					out.flush();
 					packet = new JSONObject(in.readUTF());
-					if (packet.getString(Utils.AUTHENTICATION).equals(Utils.WELCOME)){
+					if (packet.getString(ClientUtils.AUTHENTICATION).equals(ClientUtils.WELCOME)) {
 						Intent intent = new Intent(getBaseContext(), AfterLogin.class);
-						intent.putExtra(ClientUtils.USER_ID_CLIENT, user_ID);
+						intent.putExtra(ClientUtils.USER_ID, user_ID);
 						startActivity(intent);
 						finish();
 					}
@@ -73,7 +73,4 @@ public class MainActivity extends Activity {
 			}
 		});
 	}
-	
-
-
 }

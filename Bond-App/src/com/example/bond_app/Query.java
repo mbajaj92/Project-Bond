@@ -3,16 +3,13 @@ package com.example.bond_app;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ServerSideCode.Utils;
 import android.app.Activity;
 import android.content.Intent;
-import android.opengl.Visibility;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RelativeLayout;
 
 public class Query extends Activity {
 
@@ -21,7 +18,7 @@ public class Query extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_query);
 		Intent receive = getIntent();
-		final String userId = receive.getExtras().getString(ClientUtils.USER_ID_CLIENT);
+		final String userId = receive.getExtras().getString(ClientUtils.USER_ID);
 		final String action = receive.getExtras().getString("action");
 		final EditText query = (EditText) findViewById(R.id.query);
 		final EditText gLink = (EditText) findViewById(R.id.gLink);
@@ -66,9 +63,9 @@ public class Query extends Activity {
 	private void handleSearch(String text, String userId) {
 		try {
 			JSONObject json = new JSONObject();
-			json.put(Utils.USER_ID, userId);
-			json.put(Utils.PACKET_TYPE, Utils.SEARCH);
-			json.put(Utils.SEARCH_QUERY, text);
+			json.put(ClientUtils.USER_ID, userId);
+			json.put(ClientUtils.PACKET_TYPE, ClientUtils.SEARCH);
+			json.put(ClientUtils.SEARCH_QUERY, text);
 			ClientUtils.sendmessage(json);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -79,9 +76,9 @@ public class Query extends Activity {
 		try {
 			JSONObject json = null;
 			json = new JSONObject();
-			json.put(Utils.USER_ID, userId);
-			json.put(Utils.PACKET_TYPE, Utils.REGISTER_TOKEN);
-			json.put(Utils.TOKENS, text);
+			json.put(ClientUtils.USER_ID, userId);
+			json.put(ClientUtils.PACKET_TYPE, ClientUtils.REGISTER_TOKEN);
+			json.put(ClientUtils.TOKENS, text);
 			ClientUtils.sendmessage(json);
 		} catch (JSONException e) {
 			e.printStackTrace();
@@ -93,8 +90,8 @@ public class Query extends Activity {
 		try {
 			JSONObject json = null;
 			json = new JSONObject();
-			json.put(Utils.USER_ID, userId);
-			json.put(Utils.PACKET_TYPE, ClientUtils.ADD_GROUP);
+			json.put(ClientUtils.USER_ID, userId);
+			json.put(ClientUtils.PACKET_TYPE, ClientUtils.ADD_GROUP);
 			json.put(ClientUtils.GROUP_LINK, groupLink);
 			json.put(ClientUtils.GROUP_NAME, groupName);
 			json.put(ClientUtils.GROUP_DESC, groupDesc);

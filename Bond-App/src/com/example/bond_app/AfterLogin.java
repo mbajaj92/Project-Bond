@@ -8,7 +8,6 @@ import java.net.Socket;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ServerSideCode.Utils;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -36,7 +35,7 @@ public class AfterLogin extends Activity {
 		setContentView(R.layout.activity_after_login);
 
 		Intent receive = getIntent();
-		userId = receive.getExtras().getString(ClientUtils.USER_ID_CLIENT);
+		userId = receive.getExtras().getString(ClientUtils.USER_ID);
 		final TextView result = (TextView) findViewById(R.id.result);
 		Handler handler = new Handler(Looper.getMainLooper()) {
 			@Override
@@ -61,7 +60,7 @@ public class AfterLogin extends Activity {
 			@Override
 			public void onClick(View v) {
 				Intent i1 = new Intent(getBaseContext(), Query.class);
-				i1.putExtra(ClientUtils.USER_ID_CLIENT, userId);
+				i1.putExtra(ClientUtils.USER_ID, userId);
 				i1.putExtra("action", "search");
 				startActivity(i1);
 			}
@@ -71,7 +70,7 @@ public class AfterLogin extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Intent i2 = new Intent(getBaseContext(), Query.class);
-				i2.putExtra(ClientUtils.USER_ID_CLIENT, userId);
+				i2.putExtra(ClientUtils.USER_ID, userId);
 				i2.putExtra("action", "registerToken");
 				startActivity(i2);
 			}
@@ -81,7 +80,7 @@ public class AfterLogin extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				Intent i3 = new Intent(getBaseContext(), Query.class);
-				i3.putExtra(ClientUtils.USER_ID_CLIENT, userId);
+				i3.putExtra(ClientUtils.USER_ID, userId);
 				i3.putExtra("action", "addGroup");
 				startActivity(i3);
 				
@@ -102,8 +101,8 @@ public class AfterLogin extends Activity {
 		if (id == R.id.logoff) {
 			JSONObject json = new JSONObject();
 			try {
-				json.put(Utils.USER_ID, userId);
-				json.put(Utils.PACKET_TYPE, Utils.LOGOFF);
+				json.put(ClientUtils.USER_ID, userId);
+				json.put(ClientUtils.PACKET_TYPE, ClientUtils.LOGOFF);
 				test_socket = new Socket(ClientUtils.SERVER_NAME, ClientUtils.SERVER_PORT_NUMBER);
 				out = new DataOutputStream(test_socket.getOutputStream());
 				in = new DataInputStream(test_socket.getInputStream());
