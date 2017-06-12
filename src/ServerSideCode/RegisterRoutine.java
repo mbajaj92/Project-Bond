@@ -89,7 +89,7 @@ public class RegisterRoutine {
 			while (!mRRTQueue.isEmpty()) {
 				QueueObj obj = null;
 				synchronized (mRRTmutex) {
-					obj = mRRTQueue.get(0);
+					obj = mRRTQueue.remove(0);
 					mRRTmutex.notifyAll();
 				}
 
@@ -100,6 +100,16 @@ public class RegisterRoutine {
 						Utils.register(obj.userID, stemmedTokens);
 					} catch (IOException e) {
 						e.printStackTrace();
+
+						synchronized (mRRTmutex) {
+							mRRTQueue.add(obj);
+							mRRTmutex.notifyAll();
+						}
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e1) {
+							e1.printStackTrace();
+						}
 					}
 				}
 			}

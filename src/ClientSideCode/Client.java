@@ -27,7 +27,7 @@ public class Client {
 
 	Client() {
 		try {
-			String servername = "localhost";
+			String servername = "192.168.0.30";
 			int port = Utils.SERVER_PORT_NUMBER;
 			System.out.println("Enter the user id");
 			scanner = new Scanner(System.in);
@@ -67,13 +67,13 @@ public class Client {
 		boolean logout = false;
 		NotificationManager nManager = new NotificationManager(userId);
 		nManager.start();
-		System.out.println("Enter a choice \n1.Do a Search\n2.Register Keyword For Spying\n3.Log Out");
+		System.out.println("Enter a choice \n1.Do a Search\n2.Register Keyword For Spying\n3.Add a Group\n4.Log Out");
 		int choice = scanner.nextInt();
 		scanner.nextLine();
 		JSONObject json = null;
 		// msg = null;
 		try {
-			while (choice > 0 && choice <= 3) {
+			while (choice > 0 && choice <= 4) {
 				json = new JSONObject();
 				json.put(Utils.USER_ID, userId);
 				// msg.userId = userId;
@@ -100,7 +100,7 @@ public class Client {
 					out.writeUTF(json.toString());
 					out.flush();
 					break;
-				case 3:
+				case 4:
 
 					json.put(Utils.PACKET_TYPE, Utils.LOGOFF);
 
@@ -113,8 +113,28 @@ public class Client {
 					nManager.stopListening();
 					logout = true;
 					return;
+				case 3:
+					/*Add a Group*/
+					System.out.println("Enter Group Name");
+					String groupName = scanner.nextLine();
+					System.out.println("Enter Group Link");
+					String groupLink = scanner.nextLine();
+					System.out.println("Enter Group Description");
+					String groupDesc = scanner.nextLine();
+
+					json.put(Utils.PACKET_TYPE, Utils.ADD_GROUP);
+					json.put(Utils.GROUP_LINK,groupLink);
+					json.put(Utils.GROUP_NAME,groupName);
+					json.put(Utils.GROUP_DESC,groupDesc);
+
+					test_socket = new Socket(servername, port);
+					out = new DataOutputStream(test_socket.getOutputStream());
+					in = new DataInputStream(test_socket.getInputStream());
+					out.writeUTF(json.toString());
+					out.flush();
+					break;
 				}
-				System.out.println("Enter a choice \n1.Do a Search\n2.Register Keyword For Spying\n3.Log Out");
+				System.out.println("Enter a choice \n1.Do a Search\n2.Register Keyword For Spying\n3.Add a Group\n4.Log Out");
 				choice = scanner.nextInt();
 				scanner.nextLine();
 			}

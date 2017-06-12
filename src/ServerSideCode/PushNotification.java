@@ -2,6 +2,7 @@ package ServerSideCode;
 
 import java.util.ArrayList;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PushNotification {
@@ -55,6 +56,11 @@ public class PushNotification {
 
 				if (!sent) {
 					System.out.println("Moving to Undeliverable");
+					try {
+						Utils.logUserOff(obj.getString(Utils.USER_ID));
+					} catch (JSONException e) {
+						e.printStackTrace();
+					}
 					Undeliverables.getRoutine().queueMessage(obj);
 				}
 			}

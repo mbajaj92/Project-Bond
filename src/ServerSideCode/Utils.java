@@ -1,11 +1,12 @@
 package ServerSideCode;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.URL;
@@ -20,6 +21,10 @@ import org.json.JSONObject;
 
 public class Utils {
 
+	public static final String GROUP_NAME = "group_name";
+	public static final String GROUP_LINK = "group_link";
+	public static final String GROUP_DESC = "group_desc";
+	public static final String ADD_GROUP = "add_group";
 	public static final String SEARCH_QUERY = "search_query";
 	public static final String WELCOME = "welcome";
 	public static final String AUTHENTICATION = "authentication";
@@ -43,6 +48,8 @@ public class Utils {
 	public static class QueueObj {
 		String userID;
 		String text;
+		String text2;
+		String text3;
 	}
 
 	private static void nullCheck() {
@@ -111,14 +118,10 @@ public class Utils {
 		String url = "http://127.0.0.1:5000/Project-Bond/stemmed?query=" + token;
 		String links = "";
 		InputStream is = new URL(url).openStream();
-		try {
-			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-			links = rd.readLine();
-		} catch (IOException e) {
-			e.printStackTrace();
-		} finally {
-			is.close();
-		}
+
+		BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+		links = rd.readLine();
+		is.close();
 		return Arrays.asList(links.split("$"));
 	}
 
@@ -147,6 +150,20 @@ public class Utils {
 				PushNotification.getRoutine().sendMessage(reply);
 			}
 		}
+	}
+
+	public static void addGroup(String link[], String name[], String desc[]) throws IOException {
+		FileWriter fw = new FileWriter("src/PythonCode/corpus/groupfinder.csv", true);
+		for (int i = 0; i < name.length; i++) {
+			/*if (name[i] == null)
+				continue;*/
+			name[i] = name[i].replace(",", " ").trim();
+			link[i] = link[i].replace(",", " ").trim();
+			desc[i] = desc[i].replace(",", " ").trim();
+			System.out.println("Adding "+ name[i] + " , " + link[i] + " , " + desc[i]);
+			fw.write("\n" + name[i] + " , " + link[i] + " , " + desc[i]);
+		}
+		fw.close();
 	}
 
 	public static void register(String userId, ArrayList<String> tokens) {
