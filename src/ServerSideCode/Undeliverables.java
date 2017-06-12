@@ -42,9 +42,17 @@ public class Undeliverables {
 		@Override
 		public void run() {
 			while (!mUTQueue.isEmpty()) {
-				boolean flag = false;
 				synchronized (mUTmutex) {
+					boolean flag = false;
 					for (int i = 0; i < mUTQueue.size();) {
+						try {
+							if (!flag)
+								Thread.sleep(2000);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+
+						flag = false;
 						JSONObject msg = mUTQueue.get(i);
 						try {
 							if (Utils.isUserOnline(msg.getString(Utils.USER_ID))) {
@@ -59,13 +67,6 @@ public class Undeliverables {
 						}
 					}
 					mUTmutex.notifyAll();
-				}
-
-				try {
-					if (!flag)
-						Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
 				}
 			}
 		}

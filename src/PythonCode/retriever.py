@@ -54,7 +54,7 @@ def tokenize(query):
                 dictforqueryterms[key] = 1
     return listofquerysearch
 
-@app.route('/Project-Bond/stemmed',methods=['GET','POST'])
+@app.route('/Project-Bond/stemmed', methods=['GET', 'POST'])
 def stem():
     query = request.args.get('query');
     pattern = re.compile('[^A-Za-z0-9]')
@@ -66,19 +66,19 @@ def stem():
         current_token = data[index].strip()
         if len(current_token) >= 2 and current_token.isupper():
             key = format(stemmer.stem(current_token))  # need to inflate factor for all uppercase
-            listofquerysearch+= str(key) + "$"
+            listofquerysearch += str(key) + "$"
         if len(d) >= 2 and index + 1 != len(data):
             current_token = current_token.lower()
             key = format(stemmer.stem(current_token))
-            listofquerysearch+= str(key) + "$"
+            listofquerysearch += str(key) + "$"
             if (len(data[index + 1].strip()) >= 2):
                 next_token = data[index + 1].strip().lower()
                 key = key + " " + format(stemmer.stem(next_token))
-                listofquerysearch+= str(key) + "$"  
+                listofquerysearch += str(key) + "$"  
         elif index + 1 == len(data):
             current_token = data[index].strip().lower()
             key = format(stemmer.stem(current_token))
-            listofquerysearch+= str(key) + "$"
+            listofquerysearch += str(key) + "$"
     return listofquerysearch
 
 
@@ -88,14 +88,14 @@ def get_tfidf(freqindoc, termfreq, totalCount, term_noofdocs):
     weight = math.log10(1 + tf) * math.log10(idf)
     return weight
 
-@app.route('/Project-Bond/scavenge',methods=['GET','POST'])
+@app.route('/Project-Bond/scavenge', methods=['GET', 'POST'])
 def finddocs():
     query = request.args.get('query');
     list = tokenize(query.strip())
     scoreofdocuments = {}
     totalCountofdocs = metadata.find({"totalCount": {'$exists': True}})
     totalCount = totalCountofdocs.next()["totalCount"]
-    finallist=[]
+    finallist = []
     indiction = {'$exists':True}
     for w in list:
         diction = {w:indiction}
@@ -113,10 +113,10 @@ def finddocs():
                 if key == '_id':
                     continue
                 else:
-                    print "key = " ,key
+                    print "key = " , key
                     docs = foundvalue[key]
                     w = key
-            docs=docs.split()
+            docs = docs.split()
             retrieved_entry = metadata.find({w: {'$exists': True}})
             ret = retrieved_entry.next()[w]
             queryscoreforcurrentterm = get_tfidf(dictforqueryterms[w], int(ret[0]), int(totalCount), int(ret[1]))
@@ -124,11 +124,11 @@ def finddocs():
                 l = doc.split("_")
                 if len(l) is not 3:
                    continue
-                #print l
+                # print l
                 if l[0] in scoreofdocuments.keys():
                     v = scoreofdocuments[l[0]]
                 else:
-                    v = 0 #const1 *hub + const2 * aval + const3 *pagerank
+                    v = 0  # const1 *hub + const2 * aval + const3 *pagerank
                 v += (queryscoreforcurrentterm * float(l[2]))
                 scoreofdocuments[l[0]] = v
         except StopIteration:
@@ -137,7 +137,7 @@ def finddocs():
     from heapq import nlargest
     sorted_scoreofdocs = nlargest(10, scoreofdocuments, key=scoreofdocuments.get)
     print sorted_scoreofdocs
-    #sorted_scoreofdocs = sorted(scoreofdocuments.items(), key=operator.itemgetter(1), reverse=True)
+    # sorted_scoreofdocs = sorted(scoreofdocuments.items(), key=operator.itemgetter(1), reverse=True)
     bookkeeping = open(os.getcwd() + "\\corpus\\book_keeping.json")
     bookkeeping = json.loads(bookkeeping.read())
     index = 0
@@ -150,4 +150,4 @@ def finddocs():
     return returnstring
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(threaded=True)

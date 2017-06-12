@@ -29,6 +29,12 @@ public class Server {
 				packet = new JSONObject(in.readUTF());
 
 				switch (packet.getString(Utils.PACKET_TYPE)) {
+				case Utils.ADD_GROUP:
+					String groupLink = packet.getString(Utils.GROUP_LINK);
+					String groupName = packet.getString(Utils.GROUP_NAME);
+					String groupDesc = packet.getString(Utils.GROUP_DESC);
+					AddGroupRoutine.getRoutine().addRequest(groupLink, groupName, groupDesc);
+					break;
 				case Utils.LOGIN:
 					/* Actually Authenticate */
 					System.out.println("Log In Request for " + packet.getString(Utils.USER_ID) + " "
@@ -48,6 +54,7 @@ public class Server {
 				case Utils.SEARCH:
 					/* First check for registrations and then Call Abhidnya's
 					 * Function */
+					System.out.println("Received "+packet.toString());
 					SearchRoutine.getRoutine().addSearchRequest(packet.getString(Utils.USER_ID), packet.getString(Utils.SEARCH_QUERY));
 					RegisterRoutine.getRoutine().notifySpies(packet.getString(Utils.USER_ID), packet.getString(Utils.SEARCH_QUERY));
 					System.out.println("Search Request from " + packet.getString(Utils.USER_ID));
