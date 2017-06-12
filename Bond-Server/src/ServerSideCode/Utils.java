@@ -14,6 +14,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 import org.json.JSONException;
@@ -43,7 +44,7 @@ public class Utils {
 	public static final int CLIENT_PORT_NUMBER = 5724;
 
 	private static HashMap<String, InetAddress> onlineUsers;
-	private static HashMap<String, ArrayList<String>> registration;
+	private static HashMap<String, HashSet<String>> registration;
 
 	public static class QueueObj {
 		String userID;
@@ -57,7 +58,7 @@ public class Utils {
 			onlineUsers = new HashMap<String, InetAddress>();
 
 		if (registration == null)
-			registration = new HashMap<String, ArrayList<String>>();
+			registration = new HashMap<String, HashSet<String>>();
 	}
 
 	public static boolean isUserOnline(String id) {
@@ -100,6 +101,7 @@ public class Utils {
 	}
 
 	public static String performSearch(String query) throws IOException {
+		query = query.replaceAll(" ","%20");
 		String url = "http://127.0.0.1:5000/Project-Bond/scavenge?query=" + query;
 		String links = "";
 		InputStream is = new URL(url).openStream();
@@ -115,14 +117,16 @@ public class Utils {
 	}
 
 	public static List<String> getStemmed(String token) throws IOException {
+		token = token.replaceAll(" ","%20");
 		String url = "http://127.0.0.1:5000/Project-Bond/stemmed?query=" + token;
+		System.out.println(url);
 		String links = "";
 		InputStream is = new URL(url).openStream();
 
 		BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 		links = rd.readLine();
 		is.close();
-		return Arrays.asList(links.split("$"));
+		return Arrays.asList(links.split("\\$"));
 	}
 
 	public static void notifySpies(String userId, ArrayList<String> tokens) {
@@ -130,7 +134,7 @@ public class Utils {
 			return;
 
 		for (String userID : registration.keySet()) {
-			ArrayList<String> regList = registration.get(userID);
+			HashSet<String> regList = registration.get(userID);
 
 			synchronized (regList) {
 				tokens.retainAll(regList);
@@ -168,9 +172,9 @@ public class Utils {
 
 	public static void register(String userId, ArrayList<String> tokens) {
 		nullCheck();
-		ArrayList<String> registeredTokens = registration.get(userId);
+		HashSet<String> registeredTokens = registration.get(userId);
 		if (registeredTokens == null) {
-			registration.put(userId, tokens);
+			registration.put(userId, new HashSet<String>(tokens));
 			return;
 		}
 
