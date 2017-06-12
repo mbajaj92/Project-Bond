@@ -42,9 +42,9 @@ public class AfterLogin extends Activity {
 			public void handleMessage(Message msg) {
 				String displayString = result.getText().toString();
 				if (msg.what == 1) {
-					displayString = "\n Search Reply : \n" + msg.obj.toString();
+					displayString += "\n Search Reply : \n" + msg.obj.toString();
 				} else if (msg.what == 2) {
-					displayString = "\n Spy Reply : \n" + msg.obj.toString();
+					displayString += "\n Spy Reply : \n" + msg.obj.toString();
 				}
 				result.setText(displayString);
 			}
